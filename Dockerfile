@@ -1,5 +1,5 @@
 # Stage 1 - Build Frontend (Vite)
-FROM node:18 AS frontend
+FROM node:22-alpine AS frontend
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2 - Backend (Laravel + PHP + Composer)
-FROM php:8.2-fpm AS backend
+FROM php:8.3-fpm AS backend
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -23,7 +23,8 @@ WORKDIR /var/www
 COPY . .
 
 # Copy built frontend from Stage 1
-COPY --from=frontend /app/public/dist ./public/dist
+# Laravel's Vite plugin defaults to public/build
+COPY --from=frontend /app/public/build ./public/build
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
@@ -32,5 +33,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN php artisan config:clear && \
     php artisan route:clear && \
     php artisan view:clear
+
+# Set permissions for Laravel
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 CMD ["php-fpm"]
