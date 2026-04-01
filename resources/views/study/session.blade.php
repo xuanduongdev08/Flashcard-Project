@@ -229,34 +229,34 @@
                         let msg = new SpeechSynthesisUtterance();
                         msg.text = this.currentCard.front;
                         
-                        // Fix: Chuẩn hóa code ngôn ngữ (ví dụ: 'ja' thành 'ja-JP')
-                        let code = this.langCode || 'en';
+                        // 1. Chuẩn hóa mã ngôn ngữ để bắt đúng giọng bản địa
+                        let code = this.langCode || 'en-US';
                         if (code === 'ja') code = 'ja-JP';
-                        if (code === 'vi') code = 'vi-VN';
+                        if (code === 'zh') code = 'zh-CN';
                         if (code === 'ko') code = 'ko-KR';
+                        if (code === 'vi') code = 'vi-VN';
                         
                         msg.lang = code;
-                        msg.rate = 0.9;
+                        msg.rate = 0.88;
                         msg.pitch = 1.0;
 
                         let voices = window.speechSynthesis.getVoices();
                         let langPrefix = code.split('-')[0];
 
-                        // Tìm giọng nữ hoặc giọng Google bản địa
-                        let selected =
-                            voices.find(v => v.lang.toLowerCase().replace('_', '-') === code.toLowerCase() && (v.name.includes('Google') || v.name.includes('Natural'))) ||
-                            voices.find(v => v.lang.startsWith(langPrefix) && /female|woman|kyoko|nanami|haruka|shiori/i.test(v.name)) ||
+                        // Ưu tiên: Giọng Neural/Natural Nữ -> Google Nữ -> Bất kỳ giọng của ngôn ngữ đó
+                        let selected = 
+                            voices.find(v => v.lang.startsWith(langPrefix) && (v.name.includes('Natural') || v.name.includes('Neural')) && /female|woman|xiaoxiao|nanami|kyoko/i.test(v.name)) ||
+                            voices.find(v => v.name.includes('Google') && v.lang.startsWith(langPrefix)) ||
+                            voices.find(v => v.lang.startsWith(langPrefix) && /kyoko|nanami|shiori|haruka|xiaoxiao|huihui|kiana|linlin/i.test(v.name)) ||
                             voices.find(v => v.lang.startsWith(langPrefix) && !v.name.toLowerCase().includes('male')) ||
                             voices.find(v => v.lang.startsWith(langPrefix));
 
                         if (selected) msg.voice = selected;
-                        
+
                         window.speechSynthesis.cancel();
                         window.speechSynthesis.speak(msg);
                     };
 
-
-                    // Voices may not be loaded yet — wait if needed
                     let voices = window.speechSynthesis.getVoices();
                     if (voices.length > 0) {
                         speakWithVoice();
@@ -268,7 +268,6 @@
                     }
                 }
             },
-
 
             async next(known) {
                 if (known) this.knownCount++;
@@ -300,7 +299,7 @@
                         this.completed = true;
                     }
                 } catch (e) {
-                    this.completed = true; // Fallback complete even if API fails
+                    this.completed = true; 
                 }
             },
 
@@ -315,7 +314,6 @@
             handleKeydown(e) {
                 if (this.completed) return;
                 
-                // Prevent scrolling when pressing Space
                 if (e.code === 'Space' || e.key === ' ') { 
                     e.preventDefault(); 
                     this.flipped = !this.flipped; 
