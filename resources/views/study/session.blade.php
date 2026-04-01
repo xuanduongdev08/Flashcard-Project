@@ -208,7 +208,7 @@
     function studySession() {
         return {
             cards: @json($cards),
-            langCode: '{{ $deck->language->tts_code }}',
+            langCode: '{{ $deck->language->tts_code ?: $deck->language->code }}',
             index: 0,
             flipped: false,
             completed: false,
@@ -228,23 +228,33 @@
                     const speakWithVoice = () => {
                         let msg = new SpeechSynthesisUtterance();
                         msg.text = this.currentCard.front;
-                        msg.lang = this.langCode || 'en-US';
-                        msg.rate = 0.85;
+                        
+                        // Fix: Chuẩn hóa code ngôn ngữ (ví dụ: 'ja' thành 'ja-JP')
+                        let code = this.langCode || 'en';
+                        if (code === 'ja') code = 'ja-JP';
+                        if (code === 'vi') code = 'vi-VN';
+                        if (code === 'ko') code = 'ko-KR';
+                        
+                        msg.lang = code;
+                        msg.rate = 0.9;
+                        msg.pitch = 1.0;
 
                         let voices = window.speechSynthesis.getVoices();
-                        let langPrefix = (this.langCode || 'en').split('-')[0];
+                        let langPrefix = code.split('-')[0];
 
-                        // Priority: Google voices > female voices > any matching voice
+                        // Tìm giọng nữ hoặc giọng Google bản địa
                         let selected =
-                            voices.find(v => v.lang.startsWith(langPrefix) && v.name.includes('Google')) ||
-                            voices.find(v => v.lang.startsWith(langPrefix) && /female|kyoko|nanami|ichiro/i.test(v.name)) ||
+                            voices.find(v => v.lang.toLowerCase().replace('_', '-') === code.toLowerCase() && (v.name.includes('Google') || v.name.includes('Natural'))) ||
+                            voices.find(v => v.lang.startsWith(langPrefix) && /female|woman|kyoko|nanami|haruka|shiori/i.test(v.name)) ||
                             voices.find(v => v.lang.startsWith(langPrefix) && !v.name.toLowerCase().includes('male')) ||
                             voices.find(v => v.lang.startsWith(langPrefix));
 
                         if (selected) msg.voice = selected;
+                        
                         window.speechSynthesis.cancel();
                         window.speechSynthesis.speak(msg);
                     };
+
 
                     // Voices may not be loaded yet — wait if needed
                     let voices = window.speechSynthesis.getVoices();
