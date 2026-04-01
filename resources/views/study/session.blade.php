@@ -208,7 +208,7 @@
     function studySession() {
         return {
             cards: @json($cards),
-            langCode: '{{ $deck->language->tts_code ?: $deck->language->code }}',
+            langCode: '{{ $deck->language->code }}', // Lấy mã ja, zh, vi, en...
             index: 0,
             flipped: false,
             completed: false,
@@ -229,36 +229,65 @@
                         let msg = new SpeechSynthesisUtterance();
                         msg.text = this.currentCard.front;
                         
-                        // 1. Chuẩn hóa mã ngôn ngữ để bắt đúng giọng bản địa
-                        let code = this.langCode || 'en-US';
-                        if (code === 'ja') code = 'ja-JP';
-                        if (code === 'zh') code = 'zh-CN';
-                        if (code === 'ko') code = 'ko-KR';
-                        if (code === 'vi') code = 'vi-VN';
+                        // 1. Chuẩn hóa mã vùng ngôn ngữ chi tiết
+                        let langCode = this.langCode.toLowerCase();
+                        let targetLang = langCode;
                         
-                        msg.lang = code;
-                        msg.rate = 0.88;
+                        if (langCode === 'ja') targetLang = 'ja-JP';
+                        else if (langCode === 'zh') targetLang = 'zh-CN';
+                        else if (langCode === 'ko') targetLang = 'ko-KR';
+                        else if (langCode === 'vi') targetLang = 'vi-VN';
+                        else if (langCode === 'en') targetLang = 'en-US';
+                        else if (langCode === 'fr') targetLang = 'fr-FR';
+                        
+                        msg.lang = targetLang;
+                        msg.rate = 0.9;
                         msg.pitch = 1.0;
 
+                        // 2. Lấy tất cả giọng đọc hiện có
                         let voices = window.speechSynthesis.getVoices();
-                        let langPrefix = code.split('-')[0];
+                        
+                        // 3. Lọc ra các giọng đọc thuộc ngôn ngữ mục tiêu
+                        let availableVoices = voices.filter(v => 
+                            v.lang.toLowerCase().replace('_', '-').startsWith(langCode)
+                        );
 
-                        // Ưu tiên: Giọng Neural/Natural Nữ -> Google Nữ -> Bất kỳ giọng của ngôn ngữ đó
-                        let selected = 
-                            voices.find(v => v.lang.startsWith(langPrefix) && (v.name.includes('Natural') || v.name.includes('Neural')) && /female|woman|xiaoxiao|nanami|kyoko/i.test(v.name)) ||
-                            voices.find(v => v.name.includes('Google') && v.lang.startsWith(langPrefix)) ||
-                            voices.find(v => v.lang.startsWith(langPrefix) && /kyoko|nanami|shiori|haruka|xiaoxiao|huihui|kiana|linlin/i.test(v.name)) ||
-                            voices.find(v => v.lang.startsWith(langPrefix) && !v.name.toLowerCase().includes('male')) ||
-                            voices.find(v => v.lang.startsWith(langPrefix));
+                        if (availableVoices.length === 0) {
+                            console.warn("Không tìm thấy giọng đọc cho ngôn ngữ: " + langCode);
+                            window.speechSynthesis.speak(msg); // Cố gắng đọc bằng giọng mặc định
+                            return;
+                        }
 
-                        if (selected) msg.voice = selected;
+                        // 4. Sắp xếp thứ tự ưu tiên (Giọng Nữ > Neural/Natural > Google)
+                        availableVoices.sort((a, b) => {
+                            const score = (v) => {
+                                let s = 0;
+                                let name = v.name.toLowerCase();
+                                // Ưu tiên giọng AI thế hệ mới (Neural/Natural)
+                                if (name.includes('natural') || name.includes('neural') || name.includes('online')) s += 100;
+                                // Ưu tiên giọng Nữ (Phù hợp với flashcard)
+                                if (name.includes('female') || name.includes('woman') || 
+                                    /kyoko|nanami|ayumi|haruka|shiori|xiaoxiao|huihui|kiana/i.test(name)) s += 80;
+                                // Ưu tiên giọng Google (Trong Chrome nghe rất chuẩn)
+                                if (name.includes('google')) s += 50;
+                                // Khớp hoàn toàn mã vùng (ví dụ ja-JP thay vì chỉ ja)
+                                if (v.lang.toLowerCase().replace('_', '-') === targetLang.toLowerCase()) s += 30;
+                                // Tránh giọng nam
+                                if (name.includes('male') || name.includes('man')) s -= 50;
+                                return s;
+                            };
+                            return score(b) - score(a);
+                        });
 
+                        msg.voice = availableVoices[0];
+                        
+                        // 5. Thực thi đọc
                         window.speechSynthesis.cancel();
                         window.speechSynthesis.speak(msg);
                     };
 
-                    let voices = window.speechSynthesis.getVoices();
-                    if (voices.length > 0) {
+                    // Kiểm tra voices đã tải chưa (Chrome cần cái này)
+                    if (window.speechSynthesis.getVoices().length > 0) {
                         speakWithVoice();
                     } else {
                         window.speechSynthesis.onvoiceschanged = () => {
