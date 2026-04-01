@@ -225,19 +225,40 @@
                 if (this.currentCard.audio_url) {
                     this.$refs.audioPlayer.play();
                 } else {
-                    let msg = new SpeechSynthesisUtterance();
-                    msg.text = this.currentCard.front;
-                    let voices = window.speechSynthesis.getVoices();
-                    let selectedVoice = voices.find(v => v.lang.includes(this.langCode) && v.name.includes('Neural')) 
-                                     || voices.find(v => v.lang.includes(this.langCode))
-                                     || voices.find(v => v.lang.startsWith(this.langCode.split('-')[0]));
+                    const speakWithVoice = () => {
+                        let msg = new SpeechSynthesisUtterance();
+                        msg.text = this.currentCard.front;
+                        msg.lang = this.langCode || 'en-US';
+                        msg.rate = 0.85;
 
-                    if (selectedVoice) msg.voice = selectedVoice;
-                    msg.lang = this.langCode || 'en-US';
-                    msg.rate = 0.9;
-                    window.speechSynthesis.speak(msg);
+                        let voices = window.speechSynthesis.getVoices();
+                        let langPrefix = (this.langCode || 'en').split('-')[0];
+
+                        // Priority: Google voices > female voices > any matching voice
+                        let selected =
+                            voices.find(v => v.lang.startsWith(langPrefix) && v.name.includes('Google')) ||
+                            voices.find(v => v.lang.startsWith(langPrefix) && /female|kyoko|nanami|ichiro/i.test(v.name)) ||
+                            voices.find(v => v.lang.startsWith(langPrefix) && !v.name.toLowerCase().includes('male')) ||
+                            voices.find(v => v.lang.startsWith(langPrefix));
+
+                        if (selected) msg.voice = selected;
+                        window.speechSynthesis.cancel();
+                        window.speechSynthesis.speak(msg);
+                    };
+
+                    // Voices may not be loaded yet — wait if needed
+                    let voices = window.speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        speakWithVoice();
+                    } else {
+                        window.speechSynthesis.onvoiceschanged = () => {
+                            window.speechSynthesis.onvoiceschanged = null;
+                            speakWithVoice();
+                        };
+                    }
                 }
             },
+
 
             async next(known) {
                 if (known) this.knownCount++;
