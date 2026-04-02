@@ -235,19 +235,27 @@
                             </div>
                         </button>
 
-                        <div x-show="open" @click.away="open = false" x-cloak
-                             class="absolute right-0 top-full mt-3 w-48 glass rounded-2xl
-                                    border border-slate-200 dark:border-slate-700 shadow-2xl p-2 animate-fade-in">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold
-                                                           text-slate-600 dark:text-slate-400
-                                                           hover:text-slate-900 dark:hover:text-white
-                                                           hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
-                                    🚪 <span>Đăng xuất</span>
-                                </button>
-                            </form>
-                        </div>
+                    <div x-show="open" @click.away="open = false" x-cloak
+                         class="absolute right-0 top-full mt-3 w-56 glass rounded-2xl
+                                border border-slate-200 dark:border-slate-700 shadow-2xl p-2 animate-fade-in">
+                        <a href="{{ route('profile.edit') }}" 
+                           class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold
+                                  text-slate-600 dark:text-slate-400
+                                  hover:text-indigo-600 dark:hover:text-indigo-400
+                                  hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+                            👤 <span>Thông tin tài khoản</span>
+                        </a>
+                        <div class="h-px bg-slate-100 dark:bg-slate-800 my-1 mx-2"></div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold
+                                                       text-slate-600 dark:text-slate-400
+                                                       hover:text-rose-600 dark:hover:text-rose-500
+                                                       hover:bg-rose-50 dark:hover:bg-rose-600/10 rounded-xl transition">
+                                🚪 <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </div>
                     </div>
                 @else
                     <div class="hidden sm:flex items-center gap-2">

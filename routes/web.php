@@ -63,4 +63,8 @@ Route::middleware(['auth'])->group(function () {
     // Study session for a deck
     Route::get('decks/{deck}/study', [StudyController::class, 'session'])->name('study.session');
     Route::post('decks/{deck}/study/finish', [StudyController::class, 'finish'])->name('study.finish');
+
+    // Profile
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 });

@@ -8,11 +8,7 @@
 <div class="mb-12 animate-fade-in px-4">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div class="flex-grow">
-            <div class="flex items-center gap-3 mb-4">
-                <span class="px-3 md:px-4 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-[9px] md:text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
-                    Chế độ học tập: {{ Auth::user()->learning_goal ?? 'Tiếng Anh' }}
-                </span>
-            </div>
+
             <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Chào {{ Auth::user()->name }}! 👋</h1>
             <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg font-medium max-w-xl">Hôm nay là một ngày tuyệt vời để học thêm <span class="text-slate-900 dark:text-white font-bold">10 từ mới</span> và duy trì chuỗi 🔥 <span class="text-orange-500">{{ Auth::user()->streak_count }} ngày</span> của bạn.</p>
         </div>
