@@ -79,3 +79,22 @@ Route::get('/update-database-xd', function() {
         return "Lỗi: " . $e->getMessage();
     }
 });
+
+// Route sửa lỗi hiển thị ảnh trên Render Free
+Route::get('/fix-storage-xd', function() {
+    try {
+        // Tạo liên kết thư mục (storage:link)
+        if (!file_exists(public_path('storage'))) {
+            app()->make('files')->link(storage_path('app/public'), public_path('storage'));
+        }
+        
+        // Tạo thư mục avatars nếu chưa có
+        if (!file_exists(storage_path('app/public/avatars'))) {
+            mkdir(storage_path('app/public/avatars'), 0755, true);
+        }
+        
+        return "Đã kết nối thư mục ảnh thành công! Bạn có thể về lại trang Profile và tải lại ảnh rồi đó.";
+    } catch (\Exception $e) {
+        return "Lỗi: " . $e->getMessage();
+    }
+});

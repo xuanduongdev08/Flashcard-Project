@@ -44,8 +44,8 @@ class ProfileController extends Controller
                 $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('avatars', $filename, 'public');
                 
-                // Use a relative path if possible, or ensure correct URL
-                $data['avatar'] = asset('storage/' . $path);
+                // Use a relative path for Render stability
+                $data['avatar'] = '/storage/' . $path;
                 
                 // Log for debugging
                 Log::info('Avatar uploaded successfully:', ['path' => $path]);
