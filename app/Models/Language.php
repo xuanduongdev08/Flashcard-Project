@@ -22,6 +22,40 @@ class Language extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['flag_url'];
+
+    /**
+     * Get the flag image URL from flagcdn.com.
+     * This provides a consistent and premium look across all platforms (Windows, macOS, Mobile).
+     */
+    public function getFlagUrlAttribute(): string
+    {
+        // Many language codes (en, ja, ko) match the country codes (us/gb, jp, kr)
+        // Some might need special mapping.
+        $mapping = [
+            'en' => 'us', // Default English to US flag
+            'ko' => 'kr',
+            'ja' => 'jp',
+            'vi' => 'vn',
+            'zh' => 'cn',
+            'de' => 'de',
+            'fr' => 'fr',
+            'es' => 'es',
+            'it' => 'it',
+            'ru' => 'ru',
+        ];
+
+        $code = strtolower($this->code);
+        $countryCode = $mapping[$code] ?? $code;
+
+        return "https://flagcdn.com/w80/{$countryCode}.png";
+    }
+
+    /**
      * Get all decks for this language.
      * Relationship: One Language has Many Decks.
      */

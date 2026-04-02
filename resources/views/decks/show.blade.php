@@ -9,8 +9,9 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-10 border-b border-slate-200 dark:border-slate-800/50">
         <div class="flex-grow">
             <div class="flex items-center gap-3 mb-4">
-                <span class="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100 dark:border-indigo-500/20">
-                    {{ $deck->language->flag_emoji }} {{ $deck->language->name }}
+                <span class="flex items-center gap-2 px-4 py-1.5 bg-indigo-50 dark:bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100 dark:border-indigo-500/20">
+                    <img src="{{ $deck->language->flag_url }}" class="w-5 h-3 object-cover rounded-sm shadow-sm" alt="{{ $deck->language->name }}">
+                    {{ $deck->language->name }}
                 </span>
                 <span class="text-slate-500 dark:text-slate-500 font-bold text-xs uppercase tracking-wider">{{ $deck->cards_count }} Thẻ học</span>
             </div>

@@ -415,7 +415,8 @@
                     <button @click="selectedGoal = goal.id" 
                             class="p-6 rounded-3xl border-2 transition-all group flex flex-col items-center gap-3"
                             :class="selectedGoal === goal.id ? 'bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-600/10' : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'">
-                        <span class="text-4xl group-hover:scale-110 transition-transform" x-text="goal.icon"></span>
+                        <img :src="goal.icon" class="w-16 h-10 object-cover rounded-xl shadow-lg group-hover:scale-110 transition-transform" :alt="goal.name" x-show="goal.icon.startsWith('http')">
+                        <span class="text-4xl group-hover:scale-110 transition-transform" x-text="goal.icon" x-show="!goal.icon.startsWith('http')"></span>
                         <span class="font-black text-sm tracking-tight" :class="selectedGoal === goal.id ? 'text-white' : 'text-slate-400'" x-text="goal.name"></span>
                     </button>
                 </template>
@@ -475,9 +476,9 @@
                 loginForm: { email: '', password: '', remember: false },
                 registerForm: { name: '', email: '', password: '', password_confirmation: '' },
                 goals: [
-                    { id: 'English', name: 'Tiếng Anh', icon: '🇬🇧' },
-                    { id: 'Japanese', name: 'Tiếng Nhật', icon: '🇯🇵' },
-                    { id: 'German', name: 'Tiếng Đức', icon: '🇩🇪' },
+                    { id: 'English', name: 'Tiếng Anh', icon: 'https://flagcdn.com/w160/us.png' },
+                    { id: 'Japanese', name: 'Tiếng Nhật', icon: 'https://flagcdn.com/w160/jp.png' },
+                    { id: 'German', name: 'Tiếng Đức', icon: 'https://flagcdn.com/w160/de.png' },
                     { id: 'Programming', name: 'Lập trình', icon: '💻' }
                 ],
 

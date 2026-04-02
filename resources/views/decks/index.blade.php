@@ -41,8 +41,9 @@
                             </div>
                         </td>
                         <td class="px-6 py-5 hidden sm:table-cell">
-                            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-semibold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                                {{ $deck->language->flag_emoji }} {{ $deck->language->name }}
+                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-semibold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                <img src="{{ $deck->language->flag_url }}" class="w-4 h-2.5 object-cover rounded-sm shadow-sm" alt="{{ $deck->language->name }}">
+                                {{ $deck->language->name }}
                             </span>
                         </td>
                         <td class="px-6 py-5 text-center">

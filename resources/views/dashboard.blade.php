@@ -47,7 +47,7 @@
                 </div>
                 <div class="relative z-10">
                     <div class="inline-flex items-center gap-2 mb-3">
-                        <span class="text-lg">{{ $deck->language->flag_emoji }}</span>
+                        <img src="{{ $deck->language->flag_url }}" class="w-6 h-4 object-cover rounded-sm shadow-sm" alt="{{ $deck->language->name }}">
                         <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ $deck->language->name }}</span>
                     </div>
                     <h3 class="text-xl font-black text-slate-900 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">{{ $deck->title }}</h3>
@@ -132,7 +132,7 @@
                                        hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group"
                                 :class="isSelected(lang.id) ? 'bg-indigo-50 dark:bg-indigo-600/10' : ''">
                             <div class="flex items-center gap-3">
-                                <span class="text-xl" x-text="lang.flag_emoji"></span>
+                                <img :src="lang.flag_url" class="w-6 h-4 object-cover rounded-sm shadow-sm" :alt="lang.name">
                                 <div class="flex flex-col items-start">
                                     <span class="text-sm font-bold"
                                           :class="isSelected(lang.id) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'"
@@ -188,7 +188,10 @@
                                 <span class="px-3 md:px-4 py-1 md:py-1.5
                                             bg-slate-100 dark:bg-slate-800
                                             rounded-full text-[9px] md:text-[10px] font-black
-                                            text-slate-500 dark:text-slate-500 uppercase tracking-widest">{{ $deck->language->name }}</span>
+                                            text-slate-500 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                                                <img src="{{ $deck->language->flag_url }}" class="w-4 h-2.5 object-cover rounded-sm" alt="{{ $deck->language->name }}">
+                                                {{ $deck->language->name }}
+                                            </span>
                                 <span class="text-[9px] md:text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{{ $deck->cards_count }} Học phần</span>
                             </div>
 
@@ -243,7 +246,10 @@
                     <div class="space-y-3 mb-6">
                         @foreach($recommended as $rec)
                             <a href="{{ route('decks.show', $rec) }}" class="block p-3.5 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 transition-all hover:translate-x-1 group/item shadow-sm dark:shadow-none">
-                                <p class="text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase mb-0.5">{{ $rec->language->name }}</p>
+                                <p class="text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase mb-0.5 flex items-center gap-1.5">
+                                    <img src="{{ $rec->language->flag_url }}" class="w-3 h-2 object-cover rounded-[1px]" alt="{{ $rec->language->name }}">
+                                    {{ $rec->language->name }}
+                                </p>
                                 <h4 class="text-slate-900 dark:text-white font-bold text-xs mb-0.5 line-clamp-1 group-hover/item:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{{ $rec->title }}</h4>
                                 <p class="text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase">{{ $rec->cards_count }} THẺ</p>
                             </a>
@@ -323,7 +329,7 @@
 
             getLangName(id) {
                 const lang = this.languages.find(l => l.id == id);
-                return lang ? `${lang.flag_emoji} ${lang.name}` : '';
+                return lang ? `${lang.name}` : '';
             },
 
             clearAll() { this.selected = []; }
