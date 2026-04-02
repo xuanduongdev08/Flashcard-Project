@@ -17,6 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Flashcar - Modern Flashcard Learning System for multiple languages">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title', 'Flashcar') — Modern Flashcard Learning</title>
 
     {{-- Google Fonts: Be Vietnam Pro (Optimized for Vietnamese) --}}
@@ -171,7 +173,9 @@
     <nav class="relative z-40 glass border-b border-slate-700/50 dark:border-slate-700/50 mb-8 mt-4 mx-4 rounded-3xl shadow-2xl">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <a href="{{ url('/') }}" class="flex items-center gap-2 md:gap-3 group transition flex-shrink-0">
-                <div class="w-10 h-10 md:w-12 md:h-12 btn-gradient rounded-xl md:rounded-2xl flex items-center justify-center font-black text-xl md:text-2xl shadow-lg group-hover:rotate-6 transition-transform">FC</div>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl overflow-hidden shadow-lg group-hover:rotate-6 transition-transform">
+                    <img src="{{ asset('favicon.png') }}" class="w-full h-full object-cover" alt="FC">
+                </div>
                 <div class="flex flex-col leading-none">
                     <span class="text-lg md:text-xl font-black tracking-tighter text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Flashcar</span>
                     <span class="text-[8px] md:text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5 md:mt-1">AI Powered</span>
@@ -268,7 +272,9 @@
                     border-t border-slate-200 dark:border-slate-800/50
                     flex flex-col md:flex-row justify-between items-center gap-8">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 btn-gradient rounded-xl flex items-center justify-center text-white font-black text-lg">FC</div>
+            <div class="w-10 h-10 rounded-xl overflow-hidden shadow-lg">
+                <img src="{{ asset('favicon.png') }}" class="w-full h-full object-cover" alt="FC">
+            </div>
             <span class="text-xl font-black tracking-tighter text-slate-900 dark:text-white">XDFLCAR</span>
         </div>
         <p class="text-slate-500 text-sm font-medium">
