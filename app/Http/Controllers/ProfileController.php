@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -29,19 +30,33 @@ class ProfileController extends Controller
 
         $data = $request->only(['name', 'province', 'district', 'ward', 'address_detail']);
 
-        if ($request->hasFile('avatar_file')) {
-            // Delete old avatar if it's stored locally
-            if ($user->avatar && str_contains($user->avatar, '/storage/')) {
-                $oldPath = str_replace(asset('storage/'), '', $user->avatar);
-                Storage::disk('public')->delete($oldPath);
+        try {
+            if ($request->hasFile('avatar_file')) {
+                $file = $request->file('avatar_file');
+                
+                // Delete old avatar if it's stored locally
+                if ($user->avatar && str_contains($user->avatar, '/storage/')) {
+                    $oldPath = str_replace(asset('storage/'), '', $user->avatar);
+                    Storage::disk('public')->delete($oldPath);
+                }
+
+                // Custom path name to avoid collision
+                $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('avatars', $filename, 'public');
+                
+                // Use a relative path if possible, or ensure correct URL
+                $data['avatar'] = asset('storage/' . $path);
+                
+                // Log for debugging
+                Log::info('Avatar uploaded successfully:', ['path' => $path]);
             }
 
-            $path = $request->file('avatar_file')->store('avatars', 'public');
-            $data['avatar'] = asset('storage/' . $path);
+            $user->update($data);
+            return redirect()->route('profile.edit')->with('success', 'Thông tin tài khoản đã được cập nhật thành công!');
+
+        } catch (\Exception $e) {
+            Log::error('Profile update failed:', ['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Đã có lỗi xảy ra khi lưu thông tin: ' . $e->getMessage()]);
         }
-
-        $user->update($data);
-
-        return redirect()->route('profile.edit')->with('success', 'Thông tin tài khoản đã được cập nhật thành công!');
     }
 }

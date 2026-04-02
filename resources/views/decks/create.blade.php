@@ -66,15 +66,21 @@
             {{-- Color --}}
             <div>
                 <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Màu sắc bộ thẻ</label>
-                <div class="flex flex-wrap gap-3">
-                    @foreach(['#4F46E5', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#6366f1'] as $color)
-                        <label class="cursor-pointer">
+                <div class="flex flex-wrap gap-4">
+                    @foreach(['#4F46E5', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#2D3748'] as $color)
+                        <label class="cursor-pointer group">
                             <input type="radio" name="color" value="{{ $color }}" class="hidden peer" {{ $loop->first ? 'checked' : '' }}>
-                            <div class="w-10 h-10 rounded-xl
+                            <div class="w-12 h-12 rounded-2xl
                                         border-4 border-transparent
                                         peer-checked:border-slate-900 dark:peer-checked:border-white
-                                        transition-all transform peer-checked:scale-110 active:scale-90"
-                                 style="background: {{ $color }}"></div>
+                                        peer-checked:shadow-xl peer-checked:shadow-black/20
+                                        transition-all duration-300 transform group-hover:scale-110 active:scale-95
+                                        flex items-center justify-center text-white"
+                                 style="background: {{ $color }}">
+                                <svg class="w-6 h-6 opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
                         </label>
                     @endforeach
                 </div>
