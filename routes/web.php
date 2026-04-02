@@ -7,6 +7,7 @@ use App\Http\Controllers\StudyController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,4 +68,14 @@ Route::middleware(['auth'])->group(function () {
     // Profile
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});
+
+// Route tạm thời để cập nhật Database trên Render Free
+Route::get('/update-database-xd', function() {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return "Cập nhật dữ liệu thành công! Bạn có thể xóa route này bây giờ.";
+    } catch (\Exception $e) {
+        return "Lỗi: " . $e->getMessage();
+    }
 });
