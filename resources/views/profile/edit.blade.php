@@ -167,81 +167,93 @@
         }
     }
 
-    // Static Location Data for premium experience
-    const locationData = {
-        'Hà Nội': {
-            'Quận Ba Đình': ['Trúc Bạch', 'Tràng Tiền', 'Điện Biên'],
-            'Quận Tây Hồ': ['Bưởi', 'Yên Phụ', 'Thụy Khuê'],
-            'Quận Hoàn Kiếm': ['Cửa Đông', 'Cửa Nam', 'Đồng Xuân']
-        },
-        'TP. Hồ Chí Minh': {
-            'Quận 1': ['Bến Nghé', 'Bến Thành', 'Đa Kao'],
-            'Quận 3': ['Võ Thị Sáu', 'Phường 1', 'Phường 2'],
-            'Quận Tân Bình': ['Phường 1', 'Phường 2', 'Phường 15']
-        },
-        'Đà Nẵng': {
-            'Quận Hải Châu': ['Hòa Cường Bắc', 'Hòa Cường Nam', 'Hòa Thuận Đông'],
-            'Quận Thanh Khê': ['An Khê', 'Chính Gián', 'Hòa Khê']
-        },
-        'Hải Phòng': {
-            'Quận Hồng Bàng': ['Hạ Lý', 'Quán Toan', 'Thượng Lý'],
-            'Quận Lê Chân': ['An Dương', 'Lam Sơn', 'Cát Dài']
-        }
-    };
-
+    // --- Dynamic Vietnam Location API ---
     const provinceSelect = document.getElementById('province-select');
     const districtSelect = document.getElementById('district-select');
     const wardSelect = document.getElementById('ward-select');
 
-    // Initial populate
-    Object.keys(locationData).forEach(p => {
+    // Helper to add options
+    function addOption(select, value, text, selectedValue) {
         const opt = document.createElement('option');
-        opt.value = p;
-        opt.textContent = p;
-        if (p === '{{ $user->province }}') opt.selected = true;
-        provinceSelect.appendChild(opt);
-    });
-
-    function updateDistricts() {
-        const p = provinceSelect.value;
-        districtSelect.innerHTML = '<option value="" disabled selected>Chọn huyện...</option>';
-        wardSelect.innerHTML = '<option value="" disabled selected>Chọn xã...</option>';
-        
-        if (locationData[p]) {
-            Object.keys(locationData[p]).forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d;
-                opt.textContent = d;
-                if (d === '{{ $user->district }}') opt.selected = true;
-                districtSelect.appendChild(opt);
-            });
-        }
-        if (districtSelect.value) updateWards();
+        opt.value = text; // Store name in DB
+        opt.dataset.code = value; // Store code for API calls
+        opt.textContent = text;
+        if (text === selectedValue) opt.selected = true;
+        select.appendChild(opt);
     }
 
-    function updateWards() {
-        const p = provinceSelect.value;
-        const d = districtSelect.value;
-        wardSelect.innerHTML = '<option value="" disabled selected>Chọn xã...</option>';
-        
-        if (locationData[p] && locationData[p][d]) {
-            locationData[p][d].forEach(w => {
-                const opt = document.createElement('option');
-                opt.value = w;
-                opt.textContent = w;
-                if (w === '{{ $user->ward }}') opt.selected = true;
-                wardSelect.appendChild(opt);
+    // Fetch Provinces
+    async function initProvinces() {
+        try {
+            const response = await fetch('https://provinces.open-api.vn/api/p/');
+            const provinces = await response.json();
+            
+            provinceSelect.innerHTML = '<option value="" disabled selected>Chọn tỉnh thành...</option>';
+            provinces.forEach(p => {
+                addOption(provinceSelect, p.code, p.name, '{{ $user->province }}');
             });
+
+            // If user has a saved province, trigger district fetch
+            if (provinceSelect.value) updateDistricts();
+        } catch (error) {
+            console.error('Error fetching provinces:', error);
+        }
+    }
+
+    // Fetch Districts
+    async function updateDistricts() {
+        const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+        const provinceCode = selectedOption.dataset.code;
+
+        districtSelect.innerHTML = '<option value="" disabled selected>Đang tải...</option>';
+        wardSelect.innerHTML = '<option value="" disabled selected>Chọn xã...</option>';
+
+        if (!provinceCode) return;
+
+        try {
+            const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+            const data = await response.json();
+            
+            districtSelect.innerHTML = '<option value="" disabled selected>Chọn quận huyện...</option>';
+            data.districts.forEach(d => {
+                addOption(districtSelect, d.code, d.name, '{{ $user->district }}');
+            });
+
+            if (districtSelect.value) updateWards();
+        } catch (error) {
+            console.error('Error fetching districts:', error);
+            districtSelect.innerHTML = '<option value="" disabled selected>Lỗi tải dữ liệu</option>';
+        }
+    }
+
+    // Fetch Wards
+    async function updateWards() {
+        const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+        const districtCode = selectedOption.dataset.code;
+
+        wardSelect.innerHTML = '<option value="" disabled selected>Đang tải...</option>';
+
+        if (!districtCode) return;
+
+        try {
+            const response = await fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`);
+            const data = await response.json();
+            
+            wardSelect.innerHTML = '<option value="" disabled selected>Chọn phường xã...</option>';
+            data.wards.forEach(w => {
+                addOption(wardSelect, w.code, w.name, '{{ $user->ward }}');
+            });
+        } catch (error) {
+            console.error('Error fetching wards:', error);
+            wardSelect.innerHTML = '<option value="" disabled selected>Lỗi tải dữ liệu</option>';
         }
     }
 
     provinceSelect.addEventListener('change', updateDistricts);
     districtSelect.addEventListener('change', updateWards);
 
-    // Initial triggers for current data
-    if (provinceSelect.value) updateDistricts();
-    if (districtSelect.value) updateWards();
-
+    // Initial load
+    initProvinces();
 </script>
 @endpush
 @endsection
